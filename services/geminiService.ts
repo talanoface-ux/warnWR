@@ -40,7 +40,7 @@ export const getChatResponse = async (
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://your-site.vercel.app/", // آدرس سایتت رو اینجا بذار
+        "HTTP-Referer": "https://wawbeawbrawb.vercel.app/", // آدرس سایتت رو اینجا بذار
         "X-Title": "My AI Chatbot",
         "Content-Type": "application/json",
       },
