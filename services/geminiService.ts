@@ -1,54 +1,70 @@
-import { Message, Role, SafetyLevel } from "../types";
+// src/services/geminiService.ts
+// نسخه مخصوص OpenRouter (به جای Google AI)
 
+import { Message, Role } from "../types";
+
+export interface ChatResponse {
+  text: string | null;
+}
+
+// تابع برای گرفتن کلید از محیط
+const getApiKey = (): string => {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("کلید API ست نشده است. لطفاً OPENROUTER_API_KEY را در Vercel وارد کنید.");
+  }
+  return apiKey;
+};
+
+// تابع اصلی چت با OpenRouter
 export const getChatResponse = async (
   messages: Message[],
-  systemInstruction: string,
-  safetyLevel: SafetyLevel
-): Promise<string> => {
+  systemInstruction: string
+): Promise<ChatResponse> => {
   try {
-    const apiKey = import.meta.env.VITE_CEREBRAS_API_KEY;
+    const apiKey = getApiKey();
 
-    if (!apiKey) {
-      throw new Error("متغیر محیطی VITE_CEREBRAS_API_KEY تنظیم نشده است.");
-    }
-
-    // تبدیل پیام‌ها به ساختار مورد انتظار Cerebras
+    // تبدیل ساختار پیام‌ها برای OpenRouter
     const formattedMessages = [
-      { role: "system", content: systemInstruction },
+      { role: "system", content: systemInstruction || "تو یک چت‌بات فارسی هستی." },
       ...messages
-        .filter((m) => m.content.trim() !== "")
+        .filter((m) => m.content?.trim() !== "")
         .map((m) => ({
           role: m.role === Role.ASSISTANT ? "assistant" : "user",
           content: m.content,
         })),
     ];
 
-    const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+    // درخواست به OpenRouter
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://your-site.vercel.app/",
+        "X-Title": "My AI Chatbot",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "llama3.1-8b", // مدل پایه Cerebras
+        model: "openai/gpt-4o-mini", // مدل اصلی (می‌تونی عوضش کنی)
         messages: formattedMessages,
-        temperature: 0.9,
       }),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`خطا از سرور Cerebras: ${response.status} → ${text}`);
+      const errorText = await response.text();
+      console.error("OpenRouter API Error:", errorText);
+      throw new Error("خطا در برقراری ارتباط با OpenRouter API");
     }
 
     const data = await response.json();
-    const text = data?.choices?.[0]?.message?.content || "پاسخی از مدل دریافت نشد.";
-    return text;
+    const text = data?.choices?.[0]?.message?.content || null;
+
+    return { text };
   } catch (error) {
-    console.error("Error fetching from Cerebras API:", error);
+    console.error("Chat Error:", error);
     if (error instanceof Error) {
-      return `خطا: ${error.message}`;
+      throw new Error(`خطا: ${error.message}`);
     }
-    return "یک خطای ناشناخته رخ داد.";
+    throw new Error("یک خطای ناشناخته رخ داد.");
   }
 };
