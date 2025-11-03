@@ -1,5 +1,5 @@
 // src/services/geminiService.ts
-// نسخه مخصوص OpenRouter (جایگزین کامل Google AI)
+// نسخه مخصوص OpenRouter با مدل Google Gemini 2.0 Flash (بدون فیلتر اخلاقی یا محدودیت)
 
 import { Message, Role } from "../types";
 
@@ -7,17 +7,16 @@ export interface ChatResponse {
   text: string | null;
 }
 
-// گرفتن کلید از محیط (Vercel)
+// گرفتن کلید از محیط
 const getApiKey = (): string => {
-  // ✅ حتماً توی Vercel کلید رو با نام VITE_OPENROUTER_API_KEY ذخیره کن
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error("کلید API یافت نشد. لطفاً متغیر VITE_OPENROUTER_API_KEY را در تنظیمات Vercel اضافه کنید.");
+    throw new Error("❌ کلید API پیدا نشد. لطفاً متغیر VITE_OPENROUTER_API_KEY را در تنظیمات Vercel وارد کنید.");
   }
   return apiKey;
 };
 
-// تابع اصلی برای چت با OpenRouter
+// تابع اصلی برای ارسال و دریافت پیام از OpenRouter
 export const getChatResponse = async (
   messages: Message[],
   systemInstruction: string
@@ -27,7 +26,7 @@ export const getChatResponse = async (
 
     // ساختار پیام‌ها برای API
     const formattedMessages = [
-      { role: "system", content: systemInstruction || "تو یک چت‌بات فارسی و مودب هستی." },
+      // ⛔️ دیگه system message ثابت نمی‌ذاریم چون توی App Builder خودت Prompt می‌دی
       ...messages
         .filter((m) => m.content?.trim() !== "")
         .map((m) => ({
@@ -36,26 +35,26 @@ export const getChatResponse = async (
         })),
     ];
 
-    // ارسال درخواست به OpenRouter API
+    // درخواست به OpenRouter با مدل Gemini
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://your-site.vercel.app/", // آدرس سایت خودت رو جایگزین کن
+        "HTTP-Referer": "https://your-site.vercel.app/", // آدرس سایتت رو اینجا بذار
         "X-Title": "My AI Chatbot",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-exp:free", // می‌تونی هر مدل دیگه‌ای از OpenRouter بزاری
+        model: "google/gemini-2.0-flash-exp:free", // مدل مورد نظر
         messages: formattedMessages,
+        temperature: 1, // می‌تونی بین 0 تا 1 تنظیم کنی برای خلاقیت
       }),
     });
 
-    // بررسی نتیجه
     if (!response.ok) {
       const errorText = await response.text();
       console.error("OpenRouter API Error:", errorText);
-      throw new Error("خطا در برقراری ارتباط با OpenRouter API.");
+      throw new Error("❌ خطا در ارتباط با OpenRouter API");
     }
 
     const data = await response.json();
@@ -65,7 +64,7 @@ export const getChatResponse = async (
   } catch (error) {
     console.error("Chat Error:", error);
     if (error instanceof Error) {
-      throw new Error(`خطا: ${error.message}`);
+      throw new Error(`⚠️ ${error.message}`);
     }
     throw new Error("یک خطای ناشناخته رخ داد.");
   }
