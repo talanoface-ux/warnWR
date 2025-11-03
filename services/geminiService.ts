@@ -45,7 +45,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite", // مدل مورد نظر
+        model: "google/gemini-2.0-flash-001", // مدل مورد نظر
         messages: formattedMessages,
         temperature: 1, // می‌تونی بین 0 تا 1 تنظیم کنی برای خلاقیت
       }),
