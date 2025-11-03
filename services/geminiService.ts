@@ -45,7 +45,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gryphe/mythomax-l2-13b", // مدل مورد نظر
+        model: "mistralai/mixtral-8x7b-instruct", // مدل مورد نظر
         messages: formattedMessages,
         temperature: 1,
         // 🚫 حذف کامل فیلترهای اخلاقی و محتوایی
