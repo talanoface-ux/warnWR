@@ -46,7 +46,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini", // می‌تونی هر مدل دیگه‌ای از OpenRouter بزاری
+        model: "google/gemini-2.0-flash-exp:free", // می‌تونی هر مدل دیگه‌ای از OpenRouter بزاری
         messages: formattedMessages,
       }),
     });
