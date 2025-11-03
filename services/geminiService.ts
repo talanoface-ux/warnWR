@@ -45,7 +45,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001", // مدل مورد نظر
+        model: "nousresearch/nous-hermes-2-mixtral-8x7b-dpo", // مدل مورد نظر
         messages: formattedMessages,
         temperature: 1,
         // 🚫 حذف کامل فیلترهای اخلاقی و محتوایی
