@@ -9,7 +9,7 @@ export interface ChatResponse {
 
 // تابع برای گرفتن کلید از محیط
 const getApiKey = (): string => {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("کلید API ست نشده است. لطفاً OPENROUTER_API_KEY را در Vercel وارد کنید.");
   }
