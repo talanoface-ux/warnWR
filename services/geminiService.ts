@@ -1,5 +1,5 @@
 // src/services/geminiService.ts
-// نسخه مخصوص OpenRouter با مدل Google Gemini 2.0 Flash (بدون فیلتر اخلاقی یا محدودیت)
+// نسخه مخصوص OpenRouter با مدل Google Gemini 2.0 Flash (کاملاً بدون فیلتر و محدودیت)
 
 import { Message, Role } from "../types";
 
@@ -26,7 +26,7 @@ export const getChatResponse = async (
 
     // ساختار پیام‌ها برای API
     const formattedMessages = [
-      // ⛔️ دیگه system message ثابت نمی‌ذاریم چون توی App Builder خودت Prompt می‌دی
+      // ⛔️ نیازی به پیام ثابت system نیست، چون خودت در App Builder پرامپت تعیین کردی
       ...messages
         .filter((m) => m.content?.trim() !== "")
         .map((m) => ({
@@ -35,19 +35,26 @@ export const getChatResponse = async (
         })),
     ];
 
-    // درخواست به OpenRouter با مدل Gemini
+    // درخواست به OpenRouter با مدل Gemini (بدون فیلتر)
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://wawbeawbrawb.vercel.app/", // آدرس سایتت رو اینجا بذار
+        "HTTP-Referer": "https://wawbeawbrawb.vercel.app/", // آدرس سایت خودت
         "X-Title": "My AI Chatbot",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "google/gemini-2.0-flash-001", // مدل مورد نظر
         messages: formattedMessages,
-        temperature: 1, // می‌تونی بین 0 تا 1 تنظیم کنی برای خلاقیت
+        temperature: 1,
+        // 🚫 حذف کامل فیلترهای اخلاقی و محتوایی
+        safety_settings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        ],
       }),
     });
 
