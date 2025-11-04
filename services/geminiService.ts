@@ -63,7 +63,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "thedrummer/unslopnemo-12b", // مدل پیشنهادی بدون فیلتر
+        model: "deepseek/deepseek-chat-v3-0324", // مدل پیشنهادی بدون فیلتر
         messages: formattedMessages,
         temperature: 1,
       }),
