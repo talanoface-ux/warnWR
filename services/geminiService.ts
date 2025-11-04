@@ -63,7 +63,7 @@ export const getChatResponse = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "tngtech/deepseek-r1t2-chimera:free", // مدل پیشنهادی بدون فیلتر
+        model: "z-ai/glm-4.5-air:free", // مدل پیشنهادی بدون فیلتر
         messages: formattedMessages,
         temperature: 1,
       }),
